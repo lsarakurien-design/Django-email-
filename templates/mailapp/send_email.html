@@ -1,0 +1,22 @@
+<!-- templates/mailapp/send_email.html -->
+<form method="post">{% csrf_token %}
+  <label>Recipient</label><br>
+  <input type="email" name="recipient" required value="{{ recipient|default:'' }}"><br><br>
+
+  <label>Subject</label><br>
+  <input type="text" name="subject" value="{{ subject|default:'' }}"><br><br>
+
+  <label>Message</label><br>
+  <textarea name="message" rows="6">{{ message|default:'' }}</textarea><br><br>
+
+  <button type="submit">Send</button>
+</form>
+
+{% if messages %}
+  <ul>
+  {% for msg in messages %}
+    <li style="color:red;">{{ msg }}</li>
+  {% endfor %}
+  </ul>
+{% endif %}
+

@@ -1,0 +1,79 @@
+<!-- mailapp/templates/mailapp/email_list.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Inbox</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; background:#f6f7fb; color:#222; }
+    h2 { margin-bottom: 12px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 0 6px rgba(0,0,0,.05); }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #eee; text-align: left; }
+    th { background: #fafafa; color: #333; font-weight: 600; }
+    a.subject { color: #0b67c2; text-decoration: none; }
+    a.subject:hover { text-decoration: underline; }
+    .meta { color: #666; font-size: 0.95em; }
+    .empty { padding: 20px; text-align: center; color: #777; }
+    .pager { margin-top: 12px; }
+    .pager a { margin-right: 8px; color:#0b67c2; text-decoration:none; }
+    .top-actions { margin-bottom: 12px; display:flex; gap:8px; align-items:center; }
+    .btn { background:#4CAF50; color:white; padding:8px 12px; border-radius:6px; text-decoration:none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-actions">
+    <h2>Inbox</h2>
+    <div style="margin-left:auto;">
+      <a class="btn" href="{% url 'mailapp:send_email' %}">✉️ Send Email</a>
+      <a class="btn" href="{% url 'mailapp:email_list' %}?fetch=1" style="background:#007bff;">🔄 Fetch (server)</a>
+      <!-- Note: fetch=1 only useful if you create a view to trigger fetch; otherwise run management command -->
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:60%;">Subject</th>
+        <th style="width:20%;">Sender</th>
+        <th style="width:20%;">Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in emails %}
+        <tr>
+          <td>
+            <a class="subject" href="{% url 'mailapp:email_detail' e.pk %}">
+              {{ e.subject|default:"(No Subject)" }}
+            </a>
+            <div class="meta">{{ e.recipients }}</div>
+          </td>
+          <td>{{ e.sender|default:"-" }}</td>
+          <td>
+            {% if e.date %}
+              {{ e.date|date:"Y-m-d H:i:s" }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="3" class="empty">No emails found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if is_paginated %}
+    <div class="pager">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">← Previous</a>
+      {% endif %}
+      Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Next →</a>
+      {% endif %}
+    </div>
+  {% endif %}
+
+</body>
+</html>

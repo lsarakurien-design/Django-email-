@@ -1,0 +1,79 @@
+<!-- mailapp/templates/mailapp/email_detail.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ email.subject|default:"(No Subject)" }}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 28px; background:#f6f7fb; color:#222; }
+    a { color:#0b67c2; text-decoration:none; }
+    header { display:flex; gap:12px; align-items:center; margin-bottom:18px; }
+    .card { background:#fff; padding:18px; border-radius:8px; box-shadow: 0 0 6px rgba(0,0,0,.05); }
+    h1 { margin:0 0 6px 0; font-size:1.4em; }
+    .meta { color:#666; margin-bottom:12px; }
+    pre { white-space: pre-wrap; background:#fafafa; padding:12px; border-radius:6px; border:1px solid #eee; }
+    .attachments { margin-top:14px; }
+    .attachments ul { list-style:none; padding-left:0; }
+    .attachments li { margin-bottom:6px; }
+    .small { font-size:0.9em; color:#666; }
+    .nav { margin-bottom:14px; display:flex; gap:8px; }
+    .btn { background:#4CAF50; color:white; padding:6px 10px; border-radius:6px; text-decoration:none; }
+  </style>
+</head>
+<body>
+
+  <div class="nav">
+    <a href="{% url 'mailapp:email_list' %}" class="btn">← Back to Inbox</a>
+    <a href="{% url 'mailapp:send_email' %}" class="btn" style="background:#007bff;">✉️ Send</a>
+  </div>
+
+  <div class="card">
+    <header>
+      <div style="flex:1">
+        <h1>{{ email.subject|default:"(No Subject)" }}</h1>
+        <div class="meta">
+          <strong>From:</strong> {{ email.sender|default:"-" }} &nbsp; • &nbsp;
+          <strong>To:</strong> {{ email.recipients|default:"-" }} &nbsp; • &nbsp;
+          <strong>Sent:</strong>
+          {% if email.date %} {{ email.date|date:"Y-m-d H:i:s" }} {% else %} - {% endif %}
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <h3>Message (plain)</h3>
+      {% if email.body_text %}
+        <pre>{{ email.body_text }}</pre>
+      {% else %}
+        <p class="small">No plain-text body available.</p>
+      {% endif %}
+    </section>
+
+    {% if email.body_html %}
+      <section style="margin-top:12px;">
+        <h3>Message (HTML)</h3>
+        <div style="border:1px solid #eee; padding:10px; border-radius:6px; background:#fff;">
+          {{ email.body_html|safe }}
+        </div>
+      </section>
+    {% endif %}
+
+    <section class="attachments">
+      <h3>Attachments</h3>
+      {% if email.attachments.all %}
+        <ul>
+          {% for a in email.attachments.all %}
+            <li>
+              <a href="{{ a.file.url }}" download>{{ a.filename }}</a>
+              <span class="small"> ({{ a.size|default:"-" }} bytes)</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="small">No attachments</p>
+      {% endif %}
+    </section>
+  </div>
+
+</body>
+</html>
